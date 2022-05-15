@@ -13,35 +13,36 @@
 void dev_recv(){
         led = !led;
 
-        while (esp.readable()) {
-            printf("STM write:\r\n");
-            pc.write(buf, esp.read(buf, sizeof(buf)));
-        }
+	if (uint32_t msg = serial_port.read(buf, sizeof(buf))) {
+		printf("STM write:\r\n");
+        	esp_serial.write(buf, msg);
+    }
 }
 
 void pc_recv(){
-    while (pc.readable()) {
-        printf("ESP write:\r\n");
-        esp.write(buf, pc.read(buf, sizeof(buf)));
+    if (uint32_t msg = esp_serial.read(buf, sizeof(buf))) {
+	printf("ESP write:\r\n");
+        serial_port.write(buf, msg);
     }
 }
 
 int main()
 {
-    pc.set_baud(115200);
-    esp.set_baud(115200);
+    pc.set_baud(9600);
+    esp.set_baud(9600);
 
     pc.set_format(8, BufferedSerial::None, 1);
     esp.set_format(8, BufferedSerial::None, 1);
+    char buf[MAXIMUM_BUFFER_SIZE] = {0};
 
 
-    pc.attach(&pc_recv, BufferedSerial::RxIrq);
-    esp.attach(&dev_recv, BufferedSerial::RxIrq);
+    //pc.attach(&pc_recv, BufferedSerial::RxIrq);
+    //esp.attach(&dev_recv, BufferedSerial::RxIrq);
 
 
     while (true) {
-       sleep();
        dev_recv();
+       ThisThread::sleep_for(100ms);
        pc_recv();
     }
 }
