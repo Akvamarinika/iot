@@ -1,0 +1,4 @@
+<resources>
+    <string name="app_name">iBeaconIndoor</string>
+    <string name="btn_save_geo">Запомнить местоположение</string>
+</resources>
